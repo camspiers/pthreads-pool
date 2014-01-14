@@ -13,34 +13,29 @@ function random_name($length)
     return $random;
 }
 
-class MathJob extends Work
+class Job extends Work
 {
-    protected $name;
-    
-    public function __construct($name)
+    protected function process()
     {
-        $this->name = $name;
-    }
-    public function getName()
-    {   
-        return $this->name;
-    }
-    protected function getData()
-    {
-        return array();
+        json_decode(file_get_contents(__DIR__. '/../composer.json'), true);
     }
 }
 
 $pool = new Pool();
 
-$count = 10000;
+$count = 1000000;
 $jobs = array();
 
 while ($count > 0) {
-    $jobs[] = $pool->submitWork(new MathJob(random_name(100)));
+    $jobs[] = $pool->submitWork(new Job());
+//    json_decode(file_get_contents(__DIR__. '/../composer.json'), true);
     $count--;
 }
 
-$pool->getData();
+$pool->shutdown();
+
+foreach ($jobs as $job) {
+//    var_dump($job->getData());
+}
 
 

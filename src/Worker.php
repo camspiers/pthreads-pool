@@ -11,7 +11,6 @@ use Worker as PWorker;
 class Worker extends PWorker
 {
     /**
-     * Set up the data array
      */
     public function run()
     {
