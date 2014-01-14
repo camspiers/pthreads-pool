@@ -68,10 +68,30 @@ class Pool
             $this->workers[$id]->stack($work);
             return $work;
         } else {
-            $this->currentWorker = ($this->currentWorker + 1) % $this->workerCount;
-            $this->workers[$this->currentWorker]->stack($work);
+            $this->getLeastStackedWorker()->stack($work);
             return $work;
         }
+    }
+
+    /**
+     * @return Worker
+     */
+    protected function getLeastStackedWorker()
+    {
+        $index = 0;
+        $min = $this->workers[0]->getStacked();
+
+        for ($i = 1; $i < $this->workerCount; $i++) {
+            if (($poss = $this->workers[$i]->getStacked()) < $min) {
+                if ($poss === 0) {
+                    return $this->workers[$i];
+                }
+                $min = $poss;
+                $index = $i;
+            }
+        }
+        
+        return $this->workers[$index];
     }
 
     /**
