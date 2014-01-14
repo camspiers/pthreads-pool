@@ -1,0 +1,12 @@
+{
+	"name": "camspiers/pthreads-pool",
+	"description": "Pool implementation for pthreads",
+	"autoload": {
+		"psr-4": {
+			"Camspiers\\Pthreads\\": "src/"
+		}
+	},
+	"require": {
+		"php": ">=5.4.0"
+	}
+}
