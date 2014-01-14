@@ -11,22 +11,28 @@ use Stackable;
 abstract class Work extends Stackable
 {
     /**
-     * A unique name that can later be used to retrieve data off pool
-     * @return mixed
+     * @var
      */
-    abstract public function getName();
+    protected $data;
 
     /**
-     * The data that results from the
      * @return mixed
      */
-    abstract protected function getData();
+    abstract protected function process();
 
     /**
      * Runs the work and submits the data
      */
     final public function run()
     {
-        $this->worker->addData($this->getName(), $this->getData());
+        $this->data = $this->process();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getData()
+    {
+        return $this->data;
     }
 }

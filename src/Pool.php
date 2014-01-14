@@ -75,38 +75,14 @@ class Pool
     }
 
     /**
-     * Gets data from all work
+     * Shutdown
      * @return array
      */
-    public function getData()
+    public function shutdown()
     {
-        if ($this->data === null) {
-            foreach ($this->workers as $worker) {
-                $worker->shutdown();
-            }
-            
-            $data = [];
-
-            foreach ($this->workers as $worker) {
-                $data[] = $worker->getData();
-            }
-
-            $this->data = call_user_func_array('array_merge', $data);
+        foreach ($this->workers as $worker) {
+            $worker->shutdown();
         }
-        
-        return $this->data;
-    }
-
-    /**
-     * Returns the data for the specified work
-     * 
-     * This results in the shutdown of all threads
-     * @param Work $work
-     * @return mixed
-     */
-    public function getWorkData(Work $work)
-    {
-        return $this->getData()[$work->getName()];
     }
 
     /**
