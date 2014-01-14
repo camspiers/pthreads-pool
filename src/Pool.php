@@ -17,10 +17,6 @@ class Pool
      */
     protected $workerCount;
     /**
-     * @var int
-     */
-    protected $currentWorker = 0;
-    /**
      * @var bool
      */
     protected $workersShutdown = false;
@@ -82,11 +78,12 @@ class Pool
         $min = $this->workers[0]->getStacked();
 
         for ($i = 1; $i < $this->workerCount; $i++) {
-            if (($poss = $this->workers[$i]->getStacked()) < $min) {
-                if ($poss === 0) {
+            $candidateMin = $this->workers[$i]->getStacked();
+            if ($candidateMin < $min) {
+                if ($candidateMin === 0) {
                     return $this->workers[$i];
                 }
-                $min = $poss;
+                $min = $candidateMin;
                 $index = $i;
             }
         }
