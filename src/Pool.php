@@ -116,4 +116,12 @@ class Pool
     {
         return $this->workerCreator;
     }
+
+    /**
+     * @return \Camspiers\Pthreads\Worker[]
+     */
+    public function getWorkers()
+    {
+        return $this->workers;
+    }
 }
