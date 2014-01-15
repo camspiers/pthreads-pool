@@ -17,10 +17,6 @@ class Pool
      */
     protected $workerCount;
     /**
-     * @var bool
-     */
-    protected $workersShutdown = false;
-    /**
      * @var array
      */
     protected $data;
@@ -28,18 +24,25 @@ class Pool
      * @var callable
      */
     protected $workerCreator;
+    /**
+     * @var bool
+     */
+    protected $lazyStart;
 
     /**
      * @param int $workerCount
      * @param callable $workerCreator
+     * @param bool $lazyStart
      */
-    public function __construct($workerCount = 8, callable $workerCreator = null)
+    public function __construct($workerCount = 8, callable $workerCreator = null, $lazyStart = false)
     {
         $this->workerCount = $workerCount;
         $this->workerCreator = $workerCreator;
+        $this->lazyStart = $lazyStart;
     }
 
     /**
+     * Creates a worker
      * @return \Camspiers\Pthreads\Worker
      */
     protected function createWorker()
@@ -60,35 +63,51 @@ class Pool
         if (count($this->workers) < $this->workerCount) {
             $id = count($this->workers);
             $this->workers[$id] = $this->createWorker();
-            $this->workers[$id]->start();
+            if (!$this->lazyStart) {
+                $this->workers[$id]->start();
+            }
             $this->workers[$id]->stack($work);
             return $work;
         } else {
-            $this->getLeastStackedWorker()->stack($work);
+            $this->getNextWorker()->stack($work);
             return $work;
         }
     }
 
     /**
-     * @return Worker
+     * An algorithm for selecting workers
+     * 
+     * This default implementation will select the worker with the least number of stacked jobs
+     * @return \Worker
      */
-    protected function getLeastStackedWorker()
+    protected function getNextWorker()
     {
-        $index = 0;
-        $min = $this->workers[0]->getStacked();
-
-        for ($i = 1; $i < $this->workerCount; $i++) {
-            $candidateMin = $this->workers[$i]->getStacked();
-            if ($candidateMin < $min) {
-                if ($candidateMin === 0) {
-                    return $this->workers[$i];
+        $min = null;
+        $nextWorker = null;
+        foreach ($this->workers as $worker) {
+            $stacked = $worker->getStacked();
+            if (is_null($min) || $stacked < $min) {
+                $nextWorker = $worker;
+                if ($stacked === 0) {
+                    break;
                 }
-                $min = $candidateMin;
-                $index = $i;
             }
         }
         
-        return $this->workers[$index];
+        return $nextWorker;
+    }
+
+    /**
+     * Start workers
+     * @return array
+     */
+    public function start()
+    {
+        if ($this->lazyStart) {
+            foreach ($this->workers as $worker) {
+                $worker->start();
+            }
+        }
     }
 
     /**
@@ -140,5 +159,21 @@ class Pool
     public function getWorkers()
     {
         return $this->workers;
+    }
+
+    /**
+     * @param boolean $lazyStart
+     */
+    public function setLazyStart($lazyStart)
+    {
+        $this->lazyStart = $lazyStart;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getLazyStart()
+    {
+        return $this->lazyStart;
     }
 }
