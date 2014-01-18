@@ -28,6 +28,10 @@ class Pool
      * @var bool
      */
     protected $lazyStart;
+    /**
+     * @var callable
+     */
+    protected $nextWorkerAlgorithm;
 
     /**
      * @param int $workerCount
@@ -82,19 +86,11 @@ class Pool
      */
     protected function getNextWorker()
     {
-        $min = null;
-        $nextWorker = null;
-        foreach ($this->workers as $worker) {
-            $stacked = $worker->getStacked();
-            if (is_null($min) || $stacked < $min) {
-                $nextWorker = $worker;
-                if ($stacked === 0) {
-                    break;
-                }
-            }
+        if ($this->nextWorkerAlgorithm !== null) {
+            return call_user_func($this->nextWorkerAlgorithm, $this);
+        } else {
+            return $this->workers[mt_rand(0, $this->workerCount - 1)];
         }
-        
-        return $nextWorker;
     }
 
     /**
@@ -175,5 +171,21 @@ class Pool
     public function getLazyStart()
     {
         return $this->lazyStart;
+    }
+
+    /**
+     * @param mixed $nextWorkerAlgorithm
+     */
+    public function setNextWorkerAlgorithm($nextWorkerAlgorithm)
+    {
+        $this->nextWorkerAlgorithm = $nextWorkerAlgorithm;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNextWorkerAlgorithm()
+    {
+        return $this->nextWorkerAlgorithm;
     }
 }

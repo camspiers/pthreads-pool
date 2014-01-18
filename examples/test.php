@@ -2,40 +2,37 @@
 
 namespace Camspiers\Pthreads;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
-function random_name($length)
-{
-    $random = '';
-    for ($i = 0; $i < $length; $i++) {
-        $random .= chr(mt_rand(48, 126));
-    }
-    return $random;
-}
-
+/**
+ * An example Job
+ */
 class Job extends Work
 {
+    protected $url;
+
+    function __construct($url)
+    {
+        $this->url = $url;
+    }
+    
     protected function process()
     {
-        json_decode(file_get_contents(__DIR__. '/../composer.json'), true);
+        return file_get_contents($this->url);
     }
 }
 
 $pool = new Pool();
-
-$count = 1000000;
 $jobs = array();
+$count = 5000;
 
 while ($count > 0) {
-    $jobs[] = $pool->submitWork(new Job());
-//    json_decode(file_get_contents(__DIR__. '/../composer.json'), true);
+    $jobs[] = $pool->submitWork(new Job($argv[1]));
     $count--;
 }
 
 $pool->shutdown();
 
 foreach ($jobs as $job) {
-//    var_dump($job->getData());
+    echo strlen($job->getData()), PHP_EOL;
 }
-
-
