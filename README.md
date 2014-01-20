@@ -24,6 +24,7 @@ for ($i = 0; $i < 1000; $i++) {
     $pool->submitWork(new Job());
 }
 
+// get jobs as they finish
 foreach ($pool->getFinishedJobs() as $job) {
     var_dump($job->getData());
 }
