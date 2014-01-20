@@ -19,6 +19,10 @@ class Pool
     /**
      * @var array
      */
+    protected $jobs = [];
+    /**
+     * @var array
+     */
     protected $data;
     /**
      * @var callable
@@ -60,9 +64,11 @@ class Pool
 
     /**
      * @param \Camspiers\Pthreads\Work $work
+     * @param null $key
+     * @throws \RuntimeException
      * @return \Camspiers\Pthreads\Work
      */
-    public function submitWork(Work $work)
+    public function submitWork(Work $work, $key = null)
     {
         if (count($this->workers) < $this->workerCount) {
             $id = count($this->workers);
@@ -71,11 +77,19 @@ class Pool
                 $this->workers[$id]->start();
             }
             $this->workers[$id]->stack($work);
-            return $work;
         } else {
             $this->getNextWorker()->stack($work);
-            return $work;
         }
+        
+        if ($key === null) {
+            $this->jobs[] = $work;
+        } elseif(empty($this->jobs[$key])) {
+            $this->jobs[$key] = $work;
+        } else {
+            throw new \RuntimeException(sprintf("Job with key '%s' already exists", $key));
+        }
+
+        return $work;
     }
 
     /**
@@ -187,5 +201,29 @@ class Pool
     public function getNextWorkerAlgorithm()
     {
         return $this->nextWorkerAlgorithm;
+    }
+
+    /**
+     * Yields jobs as they finish
+     * @return \Generator
+     */
+    public function getFinishedJobs()
+    {
+        while (count($this->jobs) !== 0) {
+            foreach ($this->jobs as $index => $job) {
+                if ($job->isFinished()) {
+                    unset($this->jobs[$index]);
+                    yield $index => $job;
+                }
+            }
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getJobs()
+    {
+        return $this->jobs;
     }
 }

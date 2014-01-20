@@ -2,37 +2,59 @@
 
 namespace Camspiers\Pthreads;
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-/**
- * An example Job
- */
-class Job extends Work
+class SleepJob extends Work
 {
-    protected $url;
+    public $var;
 
-    function __construct($url)
+    function __construct($var)
     {
-        $this->url = $url;
+        $this->var = $var;
     }
     
     protected function process()
     {
-        return file_get_contents($this->url);
+        // an example of executing some kind of command
+        exec('sleep ' . $this->var);
+    }
+}
+
+class Job1 extends SleepJob {
+    public function getJob()
+    {
+        return new Job2(1);
+    }
+}
+
+class Job2 extends SleepJob {
+    public function getJob()
+    {
+        return new Job3(1);
+    }
+}
+
+class Job3 extends SleepJob {
+    public function getJob()
+    {
+        return false;
     }
 }
 
 $pool = new Pool();
-$jobs = array();
-$count = 5000;
 
-while ($count > 0) {
-    $jobs[] = $pool->submitWork(new Job($argv[1]));
-    $count--;
+for ($i = 0; $i < 40; $i++) {
+    $pool->submitWork(new Job1(1));
+}
+
+// uses jobs as they finish. this method should be a lot faster as
+// the secondary job can run as soon as the relevant primary work is complete
+foreach ($pool->getFinishedJobs() as $job) {
+    if ($newJob = $job->getJob()) {
+        $pool->submitWork($newJob);
+    } else {
+        echo 'Finished', PHP_EOL;
+    }
 }
 
 $pool->shutdown();
-
-foreach ($jobs as $job) {
-    echo strlen($job->getData()), PHP_EOL;
-}

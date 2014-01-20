@@ -14,6 +14,10 @@ abstract class Work extends Stackable
      * @var
      */
     protected $data;
+    /**
+     * @var bool
+     */
+    protected $finished = false;
 
     /**
      * @return mixed
@@ -26,6 +30,7 @@ abstract class Work extends Stackable
     final public function run()
     {
         $this->data = $this->process();
+        $this->finished = true;
     }
 
     /**
@@ -34,5 +39,13 @@ abstract class Work extends Stackable
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFinished()
+    {
+        return $this->finished;
     }
 }
