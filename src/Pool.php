@@ -108,6 +108,22 @@ class Pool
     }
 
     /**
+     * Yields jobs as they finish
+     * @return \Generator
+     */
+    public function getFinishedJobs()
+    {
+        while (count($this->jobs) !== 0) {
+            foreach ($this->jobs as $index => $job) {
+                if ($job->isFinished()) {
+                    unset($this->jobs[$index]);
+                    yield $index => $job;
+                }
+            }
+        }
+    }
+
+    /**
      * Start workers
      * @return array
      */
@@ -204,23 +220,7 @@ class Pool
     }
 
     /**
-     * Yields jobs as they finish
-     * @return \Generator
-     */
-    public function getFinishedJobs()
-    {
-        while (count($this->jobs) !== 0) {
-            foreach ($this->jobs as $index => $job) {
-                if ($job->isFinished()) {
-                    unset($this->jobs[$index]);
-                    yield $index => $job;
-                }
-            }
-        }
-    }
-
-    /**
-     * @return array
+     * @return \Camspiers\Pthreads\Work[]
      */
     public function getJobs()
     {
