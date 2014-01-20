@@ -9,9 +9,6 @@ namespace Camspiers\Pthreads;
 
 require_once 'vendor/autoload.php';
 
-/**
- * An example Job
- */
 class Job extends Work
 {
     protected function process()
@@ -22,17 +19,14 @@ class Job extends Work
 }
 
 $pool = new Pool();
-$jobs = array();
-$count = 1000;
 
-while ($count > 0) {
-    $jobs[] = $pool->submitWork(new Job());
-    $count--;
+for ($i = 0; $i < 1000; $i++) {
+    $pool->submitWork(new Job());
+}
+
+foreach ($pool->getFinishedJobs() as $job) {
+    var_dump($job->getData());
 }
 
 $pool->shutdown();
-
-foreach ($jobs as $job) {
-    var_dump($job->getData());
-}
 ```
