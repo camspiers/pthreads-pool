@@ -2,6 +2,8 @@
 
 namespace Camspiers\Pthreads;
 
+use Composer\Autoload\ClassLoader;
+
 /**
  * Class Pool
  * @package Camspiers\Pthreads
@@ -38,6 +40,11 @@ class Pool
     protected $nextWorkerAlgorithm;
 
     /**
+     * @var \Composer\Autoload\ClassLoader
+     */
+    protected $loader;
+
+    /**
      * @param int $workerCount
      * @param callable $workerCreator
      * @param bool $lazyStart
@@ -58,7 +65,7 @@ class Pool
         if ($this->workerCreator !== null) {
             return call_user_func($this->workerCreator);
         } else {
-            return new Worker();
+            return new Worker($this->loader);
         }
     }
 
@@ -225,5 +232,21 @@ class Pool
     public function getJobs()
     {
         return $this->jobs;
+    }
+
+    /**
+     * @param \Composer\Autoload\ClassLoader $loader
+     */
+    public function setLoader(ClassLoader $loader)
+    {
+        $this->loader = $loader;
+    }
+
+    /**
+     * @return \Composer\Autoload\ClassLoader
+     */
+    public function getLoader()
+    {
+        return $this->loader;
     }
 }

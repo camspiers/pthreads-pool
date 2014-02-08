@@ -31,3 +31,17 @@ foreach ($pool->getFinishedJobs() as $job) {
 
 $pool->shutdown();
 ```
+
+## Working with an autoloader
+
+In `pthreads` you need to register a autoload in each thread (or worker). The can be achieved by setting a loader
+on the pool.
+
+```php
+$loader = require 'vendor/autoload.php';
+
+$pool = new \Camspiers\Pthreads\Pool();
+$pool->setLoader($loader);
+
+// Use the pool
+```
