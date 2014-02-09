@@ -156,10 +156,12 @@ class Pool
 
     /**
      * @param int $workerCount
+     * @return \Camspiers\Pthreads\Pool
      */
     public function setWorkerCount($workerCount)
     {
         $this->workerCount = $workerCount;
+        return $this;
     }
 
     /**
@@ -172,10 +174,12 @@ class Pool
 
     /**
      * @param callable $workerCreator
+     * @return \Camspiers\Pthreads\Pool
      */
     public function setWorkerCreator($workerCreator)
     {
         $this->workerCreator = $workerCreator;
+        return $this;
     }
 
     /**
@@ -196,10 +200,12 @@ class Pool
 
     /**
      * @param boolean $lazyStart
+     * @return \Camspiers\Pthreads\Pool
      */
     public function setLazyStart($lazyStart)
     {
         $this->lazyStart = $lazyStart;
+        return $this;
     }
 
     /**
@@ -212,10 +218,12 @@ class Pool
 
     /**
      * @param mixed $nextWorkerAlgorithm
+     * @return \Camspiers\Pthreads\Pool
      */
     public function setNextWorkerAlgorithm($nextWorkerAlgorithm)
     {
         $this->nextWorkerAlgorithm = $nextWorkerAlgorithm;
+        return $this;
     }
 
     /**
@@ -236,10 +244,12 @@ class Pool
 
     /**
      * @param \Composer\Autoload\ClassLoader $loader
+     * @return \Camspiers\Pthreads\Pool
      */
     public function setLoader(ClassLoader $loader)
     {
         $this->loader = $loader;
+        return $this;
     }
 
     /**
